@@ -1,0 +1,103 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Website Setup & Admin Guide</title>
+<style>
+body{font:17px/1.6 system-ui,sans-serif;max-width:820px;margin:0 auto;padding:20px;color:#16283a}
+h1{color:#0b3a5b}h2{color:#0b3a5b;border-bottom:3px solid #f2a33a;padding-bottom:4px;margin-top:2em}h3{color:#17946a;margin-bottom:.2em}
+code{background:#eef3f5;padding:1px 6px;border-radius:5px;font-size:.92em}pre{background:#0b3a5b;color:#fff;padding:12px;border-radius:10px;overflow:auto}
+.note{background:#f2a33a2e;border-radius:10px;padding:10px 14px}table{border-collapse:collapse;width:100%}td,th{border:1px solid #dbe5e8;padding:8px;text-align:left;vertical-align:top}th{background:#f2f8f7}
+</style></head><body>
+<h1>Website Setup &amp; Admin Guide</h1>
+<p>Your package has 3 files: <code>index.html</code> (the public website), <code>admin.html</code> (staff dashboard) and <code>Code.gs</code> (the Google Sheets backend).</p>
+<div class="note"><b>Thailand-only now.</b> Philippines destinations, packages and offers have been removed from the site and the dashboard, which now focuses on Bangkok, Phuket, Pattaya, Krabi, Chiang Mai and Ayutthaya. If your Sheet's Images/Prices tabs still have old rows for Philippines destinations (e.g. <code>boracay</code>, <code>palawan</code>), they're harmless and ignored by the site — delete those rows in the Sheet if you'd like to tidy up.</div>
+<div class="note"><b>New architecture (tour-operator style).</b> The homepage now runs: a rotating promo carousel (hero) → About → a "One Stop Service" tile grid → a horizontal "Popular Tours" row with HOT badges and optional strikethrough pricing → the trip planner → Destinations → Offers → the rest as before. There's also a new <b>All Tours</b> page (<code>#/tours</code>, in the header's "Travel Services" menu) with search, filter pills (Tour Type, Duration, Vehicle, Tour Style) and a price slider.</div>
+
+<h2>Part 1: First-time setup</h2>
+<h3>Step 1. Create the database</h3>
+<ol><li>Create a new Google Sheet. Name it anything, e.g. “Travel Leads”.</li><li>Click <b>Extensions → Apps Script</b>.</li><li>Delete the sample code, paste all of <code>Code.gs</code>.</li><li>Edit the top lines: <code>ADMIN_EMAIL</code> (you), <code>NOTIFY_EMAIL</code> (who gets new-lead alerts), <code>AGENCY</code> (your business name), and <code>ADMIN_URL</code> (leave as a placeholder for now — come back and set it once your dashboard is online in Step 5, then redeploy).</li><li>Click <b>Save</b>.</li></ol>
+<div class="note"><b>Keep the Sheet private.</b> Do not share this Google Sheet with staff. Only the owner's Google account should have access to it. Staff work through <code>admin.html</code> only, which talks to the Sheet through this script.</div>
+<h3>Step 2. Run setup once</h3>
+<ol><li>In the function dropdown at the top, choose <code>setup</code>, then click <b>Run</b>.</li><li>Approve the permissions (Sheets, Gmail, Drive). If Google shows “unverified app”, choose Advanced → Continue. It is your own script.</li><li>Three tabs appear in the Sheet: <b>Leads, Users, Images</b>. A temporary admin password is emailed to <code>ADMIN_EMAIL</code>.</li></ol>
+<h3>Step 3. Publish the backend</h3>
+<ol><li>Click <b>Deploy → New deployment</b>, gear icon → <b>Web app</b>.</li><li>Execute as: <b>Me</b>. Who has access: <b>Anyone</b>. Click Deploy.</li><li>Copy the <b>Web app URL</b> (ends with <code>/exec</code>).</li></ol>
+<h3>Step 4. Put the URL in the website files</h3>
+<p>Open <code>index.html</code> in a text editor (Notepad or similar). Near the top find the SETTINGS block:</p>
+<pre>window.APP_CONFIG={
+  API_URL:"PASTE_WEB_APP_URL",
+  WHATSAPP:"66000000000"
+};</pre>
+<p>Replace <code>PASTE_WEB_APP_URL</code> with your URL (keep the quotes) and set your WhatsApp number (country code, no + or spaces). Do the same in <code>admin.html</code>, or leave admin as is and paste the URL in the box on its sign-in screen.</p>
+<h3>Step 5. Put the site online</h3>
+<ol><li>Put <code>index.html</code> and <code>admin.html</code> in one folder.</li><li><b>Netlify:</b> go to app.netlify.com/drop and drag the folder in. <b>Cloudflare Pages:</b> Create project → Upload assets.</li><li>Your site is live at <code>yoursite.netlify.app</code>. Add your own domain under Domain settings and paste the DNS records at your domain registrar.</li><li>Your dashboard is at <code>yoursite/admin.html</code>.</li></ol>
+<h3>Step 6. Test</h3>
+<p>Submit a test quote on the site. A row should appear in the Leads tab, the sales email should arrive, and the Lead ID should show on the thank-you screen.</p>
+
+<h2>Part 2: The dashboard layout</h2>
+<p><code>admin.html</code> now has a left-hand navigation (a bar across the top on phones) with: <b>Leads, Quotes, Content &amp; Images, Users, Account, Guide</b>. Agents see Leads, Quotes, Account and Guide. Only Admins see Content &amp; Images and Users.</p>
+
+<h2>Part 3: Changing pictures, prices and text (Content &amp; Images tab)</h2>
+<p><b>Where:</b> sign in as an Admin → <b>Content &amp; Images</b>.</p>
+<h3>Agency &amp; contact details</h3>
+<p>Edit agency name, phone, WhatsApp number, LINE ID, email, hours and office address, then <b>Save settings</b>. These appear across the site (header, footer, contact section, WhatsApp and call buttons) within a few minutes.</p>
+<h3>Photos</h3>
+<ol><li>Find the slot: <b>Home hero banner</b> or a destination (Bangkok, Phuket, … Siargao).</li><li>Click <b>Choose file</b> and pick a photo. It is resized and uploaded to Google Drive automatically.</li><li>It appears on the site within about <b>5 minutes</b>. Hard refresh (Ctrl+Shift+R) if you still see the old one.</li><li><b>Remove photo</b> returns the slot to the coloured gradient.</li></ol>
+<div class="note"><b>Photo tips:</b> landscape, about 1600×900, under 1.5 MB. Keep the subject away from the bottom-left (text sits there). Only use photos you own or are licensed to use.</div>
+<h3>Starting prices</h3>
+<p>Next to each destination (except the hero), type the "From" price shown on its card and page, e.g. <code>฿ 12,900</code>, then <b>Save price</b>.</p>
+<h3>Tour packages, special offers, testimonials</h3>
+<p>Each has its own card list with <b>+ Add</b>, editable fields, an <b>Active</b> checkbox (unticking hides it from the site without deleting it), and <b>Remove</b>. Click the section's <b>Save</b> button once you're done editing that section — it replaces the whole list on the site.</p>
+<p>Each package also has: <b>Mark HOT</b> (shows a red HOT badge), an optional <b>Was price</b> (shown with a strikethrough next to the regular price, for a discount look), a numeric <b>Price in THB</b> (used by the All Tours page's price slider — separate from the display price text, which can say anything like "฿ 1,200/Pax"), and four tags — <b>Tour Type, Duration, Vehicle, Tour Style</b> — used by the All Tours filters. Leaving a tag blank ("—") just means that tour won't match a filter for that category.</p>
+<p>Package <b>Inclusions</b> are entered one per line. Everything you don't edit here (FAQ, page layout, "Why choose us", the "One Stop Service" tiles) still needs a direct edit to <code>index.html</code>, covered in Part 6.</p>
+<p>A package or offer you add only appears on the site after you press that section's own <b>Save</b> button — adding a row just adds it to your screen first, so you can fill in several before saving.</p>
+<h3>About text</h3>
+<p>The paragraph under the hero on the homepage is set in Content &amp; Images → Agency &amp; contact details → <b>About text</b>.</p>
+<p><b>Not appearing?</b> Wait 5 minutes, hard refresh, and confirm <code>API_URL</code> is set correctly in <code>index.html</code>.</p>
+
+<h2>Part 4: Quotations (Quotes tab)</h2>
+<ol><li>Open a lead in <b>Leads</b> and click <b>Quote this lead</b> — or go straight to <b>Quotes</b> and fill in the customer's details.</li><li>Add line items (hotel, transfers, tours…) with quantity and unit price. The total updates automatically.</li><li>Set <b>Valid until</b> and any notes.</li><li><b>Save quote</b> keeps it as a draft. <b>Save &amp; mark lead QUOTE SENT</b> also updates the linked lead's status and sets a follow-up date two days out.</li><li><b>Print / Save PDF</b> opens a clean printable quote in a new tab — use your browser's Print dialog and choose "Save as PDF" to send it to the customer.</li><li>Reopen any quote later from the <b>Saved quotes</b> list to edit or reprint it.</li></ol>
+<p>Quote numbers look like <code>QT-2026-000125</code> and are stored in the Sheet's <b>Quotes</b> tab. The printed quote shows your agency name at the top — set it once under Content &amp; Images → Agency &amp; contact details.</p>
+
+<h2>Part 5: Other admin tasks</h2>
+<h3>Handle leads</h3>
+<ol><li>Sign in → <b>Leads</b>. Newest first. Filter by status if needed.</li><li>Set <b>status</b> (NEW → CONTACTED → QUALIFIED → QUOTE SENT → NEGOTIATING → BOOKED; also LOST or FOLLOW-UP), <b>assigned agent</b>, <b>next follow-up date</b> and <b>notes</b>.</li><li>Click <b>Save</b> on that lead.</li></ol>
+<p>Each lead also shows its source and UTM campaign. Use ad links like <code>yoursite.com/?utm_source=facebook&amp;utm_medium=paid&amp;utm_campaign=thailand_october</code>.</p>
+<h3>Add a staff member</h3>
+<ol><li><b>Users</b> tab (Admins only) → enter name, email and role.</li><li><b>Agent</b> = Leads, Quotes, Account, Guide. <b>Admin</b> = everything, including Content &amp; Images and Users.</li><li>Click <b>Create user</b>. A temporary password is shown <b>once</b>; send it to them privately. They must change it at first sign-in.</li></ol>
+<h3>Reset a password / deactivate a user</h3>
+<p>Users tab → <b>Reset password</b> or <b>Deactivate</b> (blocks sign-in; Activate restores it). You can't deactivate yourself.</p>
+<h3>Change your own password</h3>
+<p><b>Account</b> tab → current password, new password (10+ characters with letters and numbers).</p>
+<h3>Forgot password (owner or any admin/agent)</h3>
+<p>On the sign-in screen, click <b>Forgot your password?</b>, enter the account's email, and click <b>Send reset link</b>. If that email has an account, a link arrives that opens a <b>Set a new password</b> screen — no old password needed. The link expires after <b>30 minutes</b>.</p>
+<p>For this to work, set <code>ADMIN_URL</code> near the top of <code>Code.gs</code> to your deployed <code>admin.html</code> address, e.g. <code>https://yoursite.netlify.app/admin.html</code>, then redeploy.</p>
+<h3>Owner locked out and can't receive email?</h3>
+<p>Open the Sheet → Extensions → Apps Script, choose <code>resetOwnerPassword</code>, Run. A new temporary password is emailed to <code>ADMIN_EMAIL</code>. Use this only as a backup to the reset-link option above.</p>
+<h3>Wrong password too many times</h3>
+<p>After 5 failures an account is locked for 15 minutes.</p>
+<h3>Who can see the Google Sheet</h3>
+<p>Only the owner. Everyone else — including admins on the dashboard — should never be given direct access to the Sheet. The dashboard already gives admins everything they need (leads, quotes, content, users) without touching the Sheet.</p>
+
+<h2>Part 6: Editing what's not in the dashboard yet</h2>
+<p>Agency name, contact details, prices, packages, offers and testimonials are now editable in <b>Content &amp; Images</b> (Part 3). A few things still require a direct edit to <code>index.html</code> in a text editor, saved and re-uploaded to your host. Use Ctrl+F to find the text.</p>
+<table><tr><th>To change</th><th>Search for</th></tr>
+<tr><td>FAQ questions and answers</td><td><code>&lt;details&gt;</code></td></tr>
+<tr><td>Destination page description, activities, season, trip length</td><td><code>var D={</code> — one line per destination</td></tr>
+<tr><td>"Why choose us" points, "How it works" steps</td><td><code>Why Choose Us</code> / <code>How It Works</code></td></tr>
+<tr><td>Privacy Policy / Terms links</td><td><code>Privacy Policy</code> in the footer — currently placeholders, add your real pages</td></tr></table>
+<h3>Change alert emails or lead statuses</h3>
+<p>Edit the top of <code>Code.gs</code> in Apps Script. Then <b>Deploy → Manage deployments → pencil icon → Version: New version → Deploy</b>. Changes to <code>Code.gs</code> do nothing until you redeploy (the URL stays the same).</p>
+<h3>Analytics and ad pixels</h3>
+<p>The site sends events (<code>lead_form_submitted</code>, <code>quote_requested</code>, <code>package_inquiry</code>, <code>whatsapp_clicked</code>, <code>phone_clicked</code>) to a <code>dataLayer</code>. Paste your Google Analytics / Tag Manager / Meta Pixel snippet into the <code>&lt;head&gt;</code> of <code>index.html</code> to start receiving them.</p>
+<h3>Backups</h3>
+<p>Your Sheet is the database. Use File → Make a copy monthly, or File → Version history.</p>
+
+<h2>Part 7: Troubleshooting</h2>
+<table><tr><th>Problem</th><th>Fix</th></tr>
+<tr><td>Thank-you page shows but no lead in Sheet</td><td><code>API_URL</code> is still the placeholder, or the deployment access isn’t “Anyone”. Fix and redeploy.</td></tr>
+<tr><td>Admin says “Cannot reach the backend”</td><td>Wrong or missing URL. It must start with <code>https://script.google.com/</code> and end with <code>/exec</code>.</td></tr>
+<tr><td>Signed out suddenly</td><td>Sessions last 6 hours. Sign in again.</td></tr>
+<tr><td>Changed Code.gs but nothing changed</td><td>Create a New version in Manage deployments.</td></tr>
+<tr><td>No confirmation emails</td><td>Customers must enter an email. Free Gmail allows about 100 script emails per day.</td></tr></table>
+
+<h2>Security checklist</h2>
+<ul><li>Protect <code>/admin.html</code> with Cloudflare Access or Netlify password protection, in addition to the sign-in.</li><li>Share the Google Sheet only with the owner. Staff use the dashboard.</li><li>Give staff the Agent role unless they need images or user management.</li><li>Deactivate staff accounts when people leave.</li><li>Publish a real Privacy Policy and Terms page before running ads.</li></ul>
+</body></html>
