@@ -1,0 +1,292 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>Admin Dashboard</title>
+<script>
+/* ============ SETTINGS: EDIT THIS BLOCK ONLY ============
+   API_URL = your Apps Script Web App URL (ends with /exec) */
+window.APP_CONFIG={ API_URL:"https://script.google.com/macros/s/AKfycbxEnmmQu4naFq--C7BY_rMlZjZ7onVNWUreL2j_gRErpuRXhCXLY36fZtiIW9KbS0B1/exec" };
+/* ======================================================== */
+</script>
+<style>
+:root{--blue:#0b3a5b;--green:#17946a;--gold:#f2a33a;--ink:#16283a;--mut:#5a6b7b;--bg:#f2f8f7;--card:#fff;--line:#dbe5e8}
+@media(prefers-color-scheme:dark){:root{--ink:#e8f0f4;--mut:#a3b5c2;--bg:#0c1a26;--card:#10222f;--line:#233a4a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif}
+.hide{display:none!important}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.b{border:0;border-radius:10px;padding:10px 14px;font:700 .88rem system-ui;background:var(--gold);color:#2a1a00;cursor:pointer}
+.b.g{background:var(--green);color:#fff}.b.x{background:transparent;border:1px solid var(--line);color:var(--ink)}.b.d{background:#d9363e;color:#fff}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:9px;background:var(--card);color:var(--ink);font:inherit;margin:3px 0 8px}
+label{font-size:.8rem;font-weight:700}.m{color:var(--mut);font-size:.83rem}
+.g2{display:grid;gap:8px;grid-template-columns:1fr 1fr}.g3{display:grid;gap:8px;grid-template-columns:1fr 1fr 1fr}
+.msg{padding:10px 12px;border-radius:10px;margin-bottom:10px;background:#f2a33a2e}.err{background:#d9363e2e}
+.th{width:90px;height:60px;border-radius:10px;background:linear-gradient(160deg,#0e8aa6,#17946a);background-size:cover;background-position:center;flex:none}
+.row{display:flex;gap:10px;align-items:flex-start}
+code{background:#0b3a5b1f;padding:1px 5px;border-radius:5px}
+.pill{display:inline-block;background:#17946a2e;border-radius:8px;padding:1px 8px;font-size:.78rem;font-weight:700}
+table{border-collapse:collapse;width:100%;font-size:.85rem}td,th{border:1px solid var(--line);padding:6px;text-align:left}
+/* --- layout: left sidebar on PC, top tabs on mobile --- */
+.shell{display:flex;min-height:100vh}
+.side{width:220px;flex:none;background:var(--blue);color:#fff;display:flex;flex-direction:column}
+.side .brand{padding:16px;font-weight:800;border-bottom:1px solid #ffffff22}
+.side nav{flex:1;padding:8px}
+.side button{display:block;width:100%;text-align:left;background:none;border:0;color:#dfe9ee;padding:11px 12px;border-radius:10px;font:700 .92rem system-ui;cursor:pointer;margin-bottom:2px}
+.side button.on{background:var(--green);color:#fff}
+.side .who{padding:12px 16px;font-size:.82rem;color:#bcd;border-top:1px solid #ffffff22}
+.main{flex:1;min-width:0;padding:18px;max-width:1100px}
+@media(max-width:860px){.shell{flex-direction:column}.side{width:100%;flex-direction:row;flex-wrap:wrap;align-items:center}
+.side .brand{border:0;padding:10px 12px}.side nav{display:flex;overflow-x:auto;padding:6px}.side button{white-space:nowrap;margin-right:4px}.side .who{border:0;padding:8px 12px}}
+.authwrap{max-width:420px;margin:60px auto;padding:0 14px}
+</style></head><body>
+
+<div id="login" class="authwrap"><div class="card"><h2 style="margin-top:0">🛠️ Admin sign in</h2>
+<div id="apirow" class="hide"><label>Backend URL (from your Apps Script deployment)</label><input id="au" placeholder="https://script.google.com/macros/s/.../exec"></div>
+<label>Email</label><input id="em" type="email" autocomplete="username">
+<label>Password</label><input id="pw" type="password" autocomplete="current-password">
+<button class="b g" id="li" style="width:100%">Sign in</button>
+<p class="m"><a href="#" id="fpLink">Forgot your password?</a></p></div>
+
+<div id="fpBox" class="card hide"><h3 style="margin-top:0">Reset your password</h3>
+<label>Email</label><input id="fpEm" type="email" autocomplete="username">
+<button class="b g" id="fpSend" style="width:100%">Send reset link</button>
+<p class="m">We'll email a link to set a new password if that address has an account. It expires in 30 minutes. <a href="#" id="fpBack">Back to sign in</a></p></div>
+
+<div id="rwBox" class="card hide"><h3 style="margin-top:0">Set a new password</h3>
+<label>New password (10+ characters, letters and numbers)</label><input id="rwNp" type="password" autocomplete="new-password">
+<label>Repeat new password</label><input id="rwNp2" type="password" autocomplete="new-password">
+<button class="b g" id="rwSave" style="width:100%">Save new password</button></div>
+</div>
+
+<div id="chg" class="authwrap hide"><div class="card"><h3 style="margin-top:0">Change password</h3><p class="m" id="chgn"></p>
+<label>Current password</label><input id="op" type="password" autocomplete="current-password">
+<label>New password (10+ characters, letters and numbers)</label><input id="np" type="password" autocomplete="new-password">
+<label>Repeat new password</label><input id="np2" type="password" autocomplete="new-password">
+<button class="b g" id="cp" style="width:100%">Save password</button></div></div>
+
+<div id="app" class="shell hide">
+<div class="side"><div class="brand">🛠️ Admin</div>
+<nav>
+<button data-t="leads" class="on">📋 Leads</button>
+<button data-t="quotes">🧾 Quotes</button>
+<button data-t="content">🖼️ Content &amp; Images</button>
+<button data-t="users" id="tu">👤 Users</button>
+<button data-t="acct">🔑 Account</button>
+<button data-t="guide">📖 Guide</button>
+</nav>
+<div class="who"><span id="who"></span><br><button class="b x" id="lo" style="margin-top:8px;width:100%">Sign out</button></div></div>
+
+<div class="main">
+<div id="msg" class="msg hide"></div>
+
+<div id="leads"><div class="card"><label>Filter by status</label><select id="fs"><option value="">All</option></select><button class="b x" id="rl">Refresh</button></div><div id="ll"></div></div>
+
+<div id="quotes" class="hide">
+<div class="card"><h3 style="margin-top:0">New quote</h3>
+<div class="g3"><div><label>Lead ID (optional)</label><input id="qlead" placeholder="LEAD-2026-000123"></div><div><label>Customer name</label><input id="qcust"></div><div><label>Phone</label><input id="qphone"></div></div>
+<div class="g3"><div><label>Destination</label><input id="qdest"></div><div><label>Travel date</label><input id="qdate" type="date"></div><div><label>Travelers</label><input id="qtrav" type="number" min="1" value="2"></div></div>
+<div class="g2"><div><label>Valid until</label><input id="qvalid" type="date"></div><div><label>Currency</label><input id="qcur" value="THB"></div></div>
+<h4>Line items</h4><div id="qitems"></div><button class="b x" id="qadd">+ Add item</button>
+<p style="text-align:right;font-weight:800;margin-top:10px">Total: <span id="qtotal">0.00</span></p>
+<label>Notes</label><textarea id="qnotes" rows="2"></textarea>
+<div class="row" style="margin-top:8px;flex-wrap:wrap">
+<select id="qstatus"></select>
+<button class="b g" id="qsave">Save quote</button>
+<button class="b" id="qsend">Save &amp; mark lead QUOTE SENT</button>
+<button class="b x" id="qprint">Print / Save PDF</button>
+<button class="b x" id="qnew">New blank quote</button>
+</div></div>
+<div class="card"><h3 style="margin-top:0">Saved quotes</h3><div id="ql"></div></div>
+</div>
+
+<div id="content" class="hide">
+<div class="card"><h3 style="margin-top:0">Agency &amp; contact details</h3>
+<div class="g2"><div><label>Agency name</label><input id="s_agency_name"></div><div><label>Phone (digits, e.g. 66812345678)</label><input id="s_phone"></div></div>
+<div class="g2"><div><label>WhatsApp number</label><input id="s_whatsapp"></div><div><label>LINE ID</label><input id="s_line"></div></div>
+<div class="g2"><div><label>Email</label><input id="s_email"></div><div><label>Business hours</label><input id="s_hours"></div></div>
+<label>Office address</label><input id="s_office">
+<button class="b g" id="s_save">Save settings</button></div>
+
+<div class="msg">Photos upload straight to Google Drive and appear on the site within about 5 minutes. Landscape, ~1600×900. Prices here are the "starting from" text shown on cards.</div>
+<div id="il"></div>
+
+<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Tour packages</h3><button class="b x" id="pk_add">+ Add package</button></div><div id="pkl"></div><button class="b g" id="pk_save">Save packages</button></div>
+<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Special offers</h3><button class="b x" id="of_add">+ Add offer</button></div><div id="ofl"></div><button class="b g" id="of_save">Save offers</button></div>
+<div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Testimonials</h3><button class="b x" id="te_add">+ Add testimonial</button></div><div id="tel"></div><button class="b g" id="te_save">Save testimonials</button></div>
+</div>
+
+<div id="users" class="hide"><div class="card"><h3 style="margin-top:0">Add staff</h3><div class="g2"><div><label>Name</label><input id="un"></div><div><label>Email</label><input id="ue" type="email"></div></div><label>Role</label><select id="ur"><option value="agent">Agent (leads &amp; quotes only)</option><option value="admin">Admin (everything)</option></select><button class="b g" id="ua">Create user</button><p class="m">A temporary password is shown once. Send it to the person privately. They must change it at first sign-in.</p></div><div id="ul"></div></div>
+
+<div id="acct" class="hide"><div class="card"><h3 style="margin-top:0">Change my password</h3><label>Current password</label><input id="op2" type="password"><label>New password</label><input id="np3" type="password"><button class="b g" id="cp2">Update password</button></div></div>
+
+<div id="guide" class="hide"><div class="card"><h3 style="margin-top:0">Guide</h3><ul>
+<li><b>Leads:</b> update status, agent, follow-up date and notes, then Save.</li>
+<li><b>Quotes:</b> pick or type a lead, add line items, Save, or Save &amp; mark the lead QUOTE SENT. Print / Save PDF uses your browser's print dialog.</li>
+<li><b>Content &amp; Images:</b> edit the agency's contact details, photos, packages, offers and testimonials. Changes go live within a few minutes.</li>
+<li><b>Users:</b> admins only. Add staff, reset passwords, deactivate accounts.</li>
+<li>Only the owner should open the Google Sheet directly — share it with no one else. Staff use this dashboard.</li>
+<li>Sessions last up to 6 hours. Always sign out on shared devices.</li>
+</ul></div></div>
+</div></div>
+
+<div id="qpv" class="hide"></div>
+
+<script>
+var API=(window.APP_CONFIG||{}).API_URL||"",tok="",role="",ST=[],QS=[];
+var SL=[["hero","Home hero banner"],["bangkok","Bangkok"],["phuket","Phuket"],["pattaya","Pattaya"],["krabi","Krabi"],["chiang-mai","Chiang Mai"],["ayutthaya","Ayutthaya"],["boracay","Boracay"],["palawan","Palawan"],["el-nido","El Nido"],["coron","Coron"],["cebu","Cebu"],["bohol","Bohol"],["siargao","Siargao"]];
+var PL=SL.slice(1); // destinations only, for prices
+function $(i){return document.getElementById(i)}
+if(API.indexOf("http")!==0){try{API=localStorage.getItem("api")||""}catch(e){}}
+if(API.indexOf("http")!==0)$("apirow").classList.remove("hide");
+function say(t,e){var m=$("msg");m.textContent=t||"";m.className="msg"+(e?" err":"");if(!t)m.classList.add("hide");else m.classList.remove("hide")}
+function api(a,d){return fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(Object.assign({action:a,token:tok},d||{}))}).then(function(r){return r.json()}).then(function(j){if(j.auth===false){out();say(j.error,1)}return j}).catch(function(){return{ok:false,error:"Cannot reach the backend. Check the web app URL."}})}
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function show(v){["login","chg","app"].forEach(function(i){$(i).classList.toggle("hide",i!==v)})}
+function out(){tok="";try{sessionStorage.removeItem("t")}catch(e){}$("who").textContent="";show("login")}
+$("li").onclick=function(){say("");if(API.indexOf("http")!==0){var u=$("au").value.trim();if(!/^https:\/\/script\.google\.com\//.test(u))return say("Enter your backend URL first.",1);API=u;try{localStorage.setItem("api",u)}catch(e){}}
+api("login",{email:$("em").value,password:$("pw").value}).then(function(j){if(!j.ok)return say(j.error,1);tok=j.token;role=j.role;$("pw").value="";try{sessionStorage.setItem("t",tok+"|"+role+"|"+j.name)}catch(e){}enter(j.name,j.must)})};
+$("pw").onkeydown=function(e){if(e.key==="Enter")$("li").click()};
+
+/* ---------- forgot password / reset via emailed link ---------- */
+function loginCard(){return $("login").querySelector(".card")}
+$("fpLink").onclick=function(e){e.preventDefault();say("");loginCard().classList.add("hide");$("fpBox").classList.remove("hide");$("fpEm").value=$("em").value||""};
+$("fpBack").onclick=function(e){e.preventDefault();$("fpBox").classList.add("hide");loginCard().classList.remove("hide")};
+$("fpSend").onclick=function(){if(API.indexOf("http")!==0)return say("Enter your backend URL first (see sign-in screen).",1);
+var em=$("fpEm").value.trim();if(!em)return say("Enter your email.",1);
+$("fpSend").disabled=true;api("forgotPassword",{email:em}).then(function(j){$("fpSend").disabled=false;say(j.message||j.error,!j.ok);if(j.ok){$("fpBox").classList.add("hide");loginCard().classList.remove("hide")}})};
+(function(){var tkn=new URLSearchParams(location.search).get("reset");if(!tkn)return;
+loginCard().classList.add("hide");$("fpBox").classList.add("hide");$("rwBox").classList.remove("hide");
+$("rwSave").onclick=function(){var n=$("rwNp").value,n2=$("rwNp2").value;if(n!==n2)return say("Passwords do not match.",1);
+if(API.indexOf("http")!==0){var u=$("au").value.trim()||prompt("Paste your backend URL (ends with /exec):")||"";if(!/^https:\/\/script\.google\.com\//.test(u))return say("Enter your backend URL first.",1);API=u;try{localStorage.setItem("api",u)}catch(e){}}
+api("resetWithToken",{token:tkn,newPassword:n}).then(function(j){if(!j.ok)return say(j.error,1);say("Password updated. You can sign in now.");$("rwBox").classList.add("hide");loginCard().classList.remove("hide");history.replaceState(null,"",location.pathname)})}})();
+var AGENCY_NAME="Your Agency Name",AGENCY_LOGO="🌴";
+function loadAgencyName(){if(API.indexOf("http")!==0)return;fetch(API+"?action=content").then(function(r){return r.ok?r.json():null}).then(function(j){var s=j&&j.content&&j.content.settings;if(s&&s.agency_name)AGENCY_NAME=s.agency_name}).catch(function(){})}
+function enter(n,must){$("who").textContent=n+" · "+role;if(must){$("chgn").textContent="You are using a temporary password. Choose a new one to continue.";return show("chg")}
+show("app");$("tu").classList.toggle("hide",role!=="admin");
+loadAgencyName();loadLeads();loadQuotes();if(role==="admin"){loadContent();loadUsers()}else{document.querySelectorAll('.side button[data-t="content"]').forEach(function(b){b.classList.add("hide")})}}
+function chpw(o,n,n2,done){if(n!==n2)return say("New passwords do not match.",1);api("changePassword",{oldPassword:o,newPassword:n}).then(function(j){if(!j.ok)return say(j.error,1);say("Password updated.");done()})}
+$("cp").onclick=function(){chpw($("op").value,$("np").value,$("np2").value,function(){$("op").value=$("np").value=$("np2").value="";enter($("who").textContent.split(" · ")[0],false)})};
+$("cp2").onclick=function(){chpw($("op2").value,$("np3").value,$("np3").value,function(){$("op2").value=$("np3").value=""})};
+$("lo").onclick=function(){api("logout").then(out)};
+document.querySelectorAll(".side button[data-t]").forEach(function(b){b.onclick=function(){say("");document.querySelectorAll(".side button[data-t]").forEach(function(x){x.classList.toggle("on",x===b)});["leads","quotes","content","users","acct","guide"].forEach(function(i){$(i).classList.toggle("hide",i!==b.dataset.t)})}});
+
+/* ---------- leads ---------- */
+var SL_=[];
+function loadLeads(){api("leads").then(function(j){if(!j.ok)return say(j.error,1);SL_=j.leads;ST=j.statuses;var f=$("fs");f.length=1;ST.forEach(function(s){f.add(new Option(s,s))});drawLeads()})}
+$("fs").onchange=drawLeads;$("rl").onclick=loadLeads;
+function drawLeads(){var L=$("ll");L.textContent="";var f=$("fs").value;SL_.filter(function(l){return!f||l.status===f}).forEach(function(l){
+var c=el("div","card"),h=el("div");h.appendChild(el("b","",l.lead_id+" · "+(l.first||"")+" "+(l.last||"")));h.appendChild(document.createTextNode(" "));h.appendChild(el("span","pill",l.status));c.appendChild(h);
+c.appendChild(el("div","m",[l.phone,l.email,l.country,l.contact].filter(Boolean).join(" · ")));
+c.appendChild(el("div","m",[l.destination,l.travel_date,l.travelers&&l.travelers+" pax",l.travel_type,l.budget].filter(Boolean).join(" · ")));
+if(l.message)c.appendChild(el("p","",l.message));
+c.appendChild(el("div","m","Source: "+[l.source,l.utm_source,l.utm_campaign].filter(Boolean).join(" / ")));
+var g=el("div","g2"),s=el("select");ST.forEach(function(x){s.add(new Option(x,x))});s.value=l.status;var a=el("input");a.placeholder="Assigned agent";a.value=l.assigned_agent||"";
+var d=el("input");d.type="date";d.value=String(l.next_followup||"").slice(0,10);var n=el("input");n.placeholder="Notes";n.value=l.notes||"";
+g.append(s,a,d,n);c.appendChild(g);
+var row=el("div","row");var b=el("button","b g","Save");b.onclick=function(){api("updateLead",{lead_id:l.lead_id,fields:{status:s.value,assigned_agent:a.value,next_followup:d.value,notes:n.value}}).then(function(j){say(j.ok?"Saved "+l.lead_id:j.error,!j.ok);if(j.ok)l.status=s.value})};
+var q=el("button","b x","Quote this lead");q.onclick=function(){document.querySelector('.side button[data-t="quotes"]').click();$("qlead").value=l.lead_id;$("qcust").value=(l.first||"")+" "+(l.last||"");$("qphone").value=l.phone||"";$("qdest").value=l.destination||"";$("qdate").value=String(l.travel_date||"").slice(0,10);$("qtrav").value=l.travelers||2};
+row.append(b,q);c.appendChild(row);L.appendChild(c)});
+if(!L.children.length)L.appendChild(el("p","m","No leads yet."))}
+
+/* ---------- quotes ---------- */
+var curItems=[];
+function addItem(desc,qty,price){curItems.push({desc:desc||"",qty:qty||1,price:price||0});drawItems()}
+function drawItems(){var L=$("qitems");L.innerHTML="";curItems.forEach(function(it,i){var r=el("div","g3");
+var d=el("input");d.placeholder="Item (e.g. Hotel 4N)";d.value=it.desc;d.oninput=function(){it.desc=d.value};
+var q=el("input");q.type="number";q.min="1";q.value=it.qty;q.oninput=function(){it.qty=+q.value||1;calcTotal()};
+var wrap=el("div","row");var p=el("input");p.type="number";p.step="0.01";p.value=it.price;p.oninput=function(){it.price=+p.value||0;calcTotal()};
+var x=el("button","b d","×");x.type="button";x.onclick=function(){curItems.splice(i,1);drawItems();calcTotal()};wrap.append(p,x);
+r.append(d,q,wrap);L.appendChild(r)});calcTotal()}
+function calcTotal(){var t=curItems.reduce(function(s,it){return s+ (it.qty*it.price)},0);$("qtotal").textContent=t.toFixed(2)+" "+($("qcur").value||"THB")}
+$("qadd").onclick=function(){addItem("",1,0)};
+$("qcur").oninput=calcTotal;
+var curQuoteId="";
+function newQuoteForm(){curQuoteId="";curItems=[];drawItems();["qlead","qcust","qphone","qdest","qdate","qvalid","qnotes"].forEach(function(i){$(i).value=""});$("qtrav").value=2;$("qcur").value="THB";$("qstatus").value="DRAFT";addItem("Hotel",1,0);addItem("Transfers",1,0)}
+$("qnew").onclick=newQuoteForm;
+function loadQuotes(){api("quotes").then(function(j){if(!j.ok)return;QL_=j.quotes;QS=j.statuses;var s=$("qstatus");s.innerHTML="";QS.forEach(function(x){s.add(new Option(x,x))});if(!curQuoteId)newQuoteForm();drawQuotes()})}
+var QL_=[];
+function drawQuotes(){var L=$("ql");L.innerHTML="";if(!QL_.length){L.appendChild(el("p","m","No quotes yet."));return}
+var t=el("table");t.innerHTML="<tr><th>Quote</th><th>Customer</th><th>Destination</th><th>Total</th><th>Status</th><th></th></tr>";
+QL_.forEach(function(q){var tr=document.createElement("tr");tr.innerHTML="<td>"+esc(q.quote_id)+"</td><td>"+esc(q.customer)+"</td><td>"+esc(q.destination)+"</td><td>"+esc(q.total)+" "+esc(q.currency)+"</td><td>"+esc(q.status)+"</td>";
+var td=document.createElement("td");var b=el("button","b x","Open");b.onclick=function(){loadQuoteIntoForm(q)};td.appendChild(b);tr.appendChild(td);t.appendChild(tr)});L.appendChild(t)}
+function loadQuoteIntoForm(q){curQuoteId=q.quote_id;$("qlead").value=q.lead_id||"";$("qcust").value=q.customer||"";$("qphone").value=q.phone||"";$("qdest").value=q.destination||"";$("qdate").value=String(q.travel_date||"").slice(0,10);$("qtrav").value=q.travelers||2;$("qvalid").value=String(q.valid_until||"").slice(0,10);$("qcur").value=q.currency||"THB";$("qnotes").value=q.notes||"";$("qstatus").value=q.status||"DRAFT";curItems=(q.items||[]).map(function(it){return{desc:it.desc,qty:it.qty,price:it.price}});if(!curItems.length)curItems=[{desc:"",qty:1,price:0}];drawItems();document.getElementById("quotes").scrollIntoView({behavior:"smooth"})}
+function collectQuote(){return{quote_id:curQuoteId,lead_id:$("qlead").value.trim(),customer:$("qcust").value.trim(),phone:$("qphone").value.trim(),destination:$("qdest").value.trim(),travel_date:$("qdate").value,travelers:$("qtrav").value,valid_until:$("qvalid").value,currency:$("qcur").value.trim()||"THB",items:curItems.filter(function(i){return i.desc}),status:$("qstatus").value,notes:$("qnotes").value.trim()}}
+$("qsave").onclick=function(){var d=collectQuote();if(!d.customer)return say("Enter a customer name.",1);api("saveQuote",d).then(function(j){if(!j.ok)return say(j.error,1);curQuoteId=j.quote_id;say("Saved "+j.quote_id+".");loadQuotes()})};
+$("qsend").onclick=function(){var d=collectQuote();if(!d.customer)return say("Enter a customer name.",1);d.status="SENT";d.markSent=true;d.followup=new Date(Date.now()+2*864e5).toISOString().slice(0,10);api("saveQuote",d).then(function(j){if(!j.ok)return say(j.error,1);curQuoteId=j.quote_id;say("Saved "+j.quote_id+" and updated the lead to QUOTE SENT.");loadQuotes();loadLeads()})};
+$("qprint").onclick=function(){var d=collectQuote(),rows=d.items.map(function(it){return "<tr><td>"+esc(it.desc)+"</td><td style='text-align:center'>"+it.qty+"</td><td style='text-align:right'>"+it.price.toFixed(2)+"</td><td style='text-align:right'>"+(it.qty*it.price).toFixed(2)+"</td></tr>"}).join("");
+var total=d.items.reduce(function(s,i){return s+i.qty*i.price},0);
+var html="<html><head><title>Quote "+esc(curQuoteId||"")+" — "+esc(AGENCY_NAME)+"</title><style>body{font-family:system-ui,sans-serif;padding:30px;color:#16283a}h1{color:#0b3a5b;margin:0 0 2px}table{width:100%;border-collapse:collapse;margin-top:14px}td,th{border:1px solid #dbe5e8;padding:8px;text-align:left}.tot{font-weight:800;font-size:1.2rem;text-align:right;margin-top:10px}.qh{display:flex;align-items:center;gap:10px;border-bottom:3px solid #f2a33a;padding-bottom:12px;margin-bottom:16px}.qh .lg{font-size:2rem}.qh .nm{font-weight:800;font-size:1.3rem;color:#0b3a5b}</style></head><body>"+
+"<div class='qh'><span class='lg'>"+AGENCY_LOGO+"</span><span class='nm'>"+esc(AGENCY_NAME)+"</span></div>"+
+"<h1>Travel Quotation</h1><p><b>Quote:</b> "+esc(curQuoteId||"(unsaved)")+" &nbsp; <b>Date:</b> "+new Date().toLocaleDateString()+" &nbsp; <b>Valid until:</b> "+esc(d.valid_until)+"</p>"+
+"<p><b>Customer:</b> "+esc(d.customer)+" &nbsp; <b>Phone:</b> "+esc(d.phone)+"</p><p><b>Destination:</b> "+esc(d.destination)+" &nbsp; <b>Travel date:</b> "+esc(d.travel_date)+" &nbsp; <b>Travelers:</b> "+esc(d.travelers)+"</p>"+
+"<table><tr><th>Item</th><th>Qty</th><th>Unit price</th><th>Line total</th></tr>"+rows+"</table>"+
+"<p class='tot'>Total: "+total.toFixed(2)+" "+esc(d.currency)+"</p>"+(d.notes?"<p><b>Notes:</b> "+esc(d.notes)+"</p>":"")+
+"<p style='margin-top:30px;font-size:.85rem;color:#5a6b7b'>Prices are subject to availability and may change until confirmed with a deposit.</p></body></html>";
+var w=window.open("","_blank");w.document.write(html);w.document.close();w.print()};
+
+/* ---------- content: settings, images, prices, packages, offers, testimonials ---------- */
+var CT={};
+function loadContent(){api("adminLists").then(function(j){if(!j.ok)return say(j.error,1);CT=j.content||{};fillSettings(CT.settings||{});drawImgs();
+PK=(CT.packages||[]).map(function(x){return Object.assign({},x)});drawPkgs();
+OF=(CT.offers||[]).map(function(x){return Object.assign({},x)});drawOffers();
+TE=(CT.testimonials||[]).map(function(x){return Object.assign({},x)});drawTesti()})}
+function fillSettings(s){["agency_name","phone","whatsapp","line","email","hours","office"].forEach(function(f){$("s_"+f).value=s[f]||""})}
+$("s_save").onclick=function(){var f={};["agency_name","phone","whatsapp","line","email","hours","office"].forEach(function(k){f[k]=$("s_"+k).value.trim()});api("saveSettings",{fields:f}).then(function(j){say(j.ok?"Settings saved.":j.error,!j.ok)})};
+
+function pack(file,cb){var r=new FileReader();r.onload=function(){var i=new Image();i.onload=function(){var w=Math.min(1600,i.width),h=Math.round(i.height*w/i.width),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(i,0,0,w,h);var v=c.toDataURL("image/webp",.8);if(v.indexOf("image/webp")<0)v=c.toDataURL("image/jpeg",.8);cb(v)};i.src=r.result};r.readAsDataURL(file)}
+function drawImgs(){var IM=CT.images||{},PR=CT.prices||{};var L=$("il");L.innerHTML="";L.appendChild(el("h3","","Photos &amp; starting prices"));
+SL.forEach(function(s){var c=el("div","card row"),t=el("div","th");if(IM[s[0]])t.style.backgroundImage='url("'+String(IM[s[0]]).replace(/["\\]/g,"")+'")';
+var r=el("div");r.style.flex="1";r.appendChild(el("b","",s[1]));var f=el("input");f.type="file";f.accept="image/*";
+f.onchange=function(){if(!f.files[0])return;say("Uploading…");pack(f.files[0],function(v){api("setImage",{key:s[0],dataUrl:v}).then(function(j){say(j.ok?"Uploaded. Live within ~5 minutes.":j.error,!j.ok);if(j.ok){IM[s[0]]=j.url;CT.images=IM;drawImgs()}})})};
+var x=el("button","b x","Remove photo");x.onclick=function(){api("removeImage",{key:s[0]}).then(function(){delete IM[s[0]];drawImgs()})};
+var pr=el("div","row");var pi=el("input");pi.placeholder="e.g. ฿ 12,900";pi.value=PR[s[0]]||"";pi.style.maxWidth="160px";
+if(s[0]==="hero"){pr.classList.add("hide")}else{var ps=el("button","b g","Save price");ps.onclick=function(){api("setPrice",{key:s[0],price:pi.value}).then(function(j){say(j.ok?"Price saved.":j.error,!j.ok);if(j.ok){PR[s[0]]=pi.value;CT.prices=PR}})};pr.append(pi,ps)}
+r.append(f,x,pr);c.append(t,r);L.appendChild(c)})}
+
+function rowEditor(list,fields,builder){var L=document.createDocumentFragment();(list||[]).forEach(function(item,idx){L.appendChild(builder(item,idx))});return L}
+function pkgCard(p,idx){var c=el("div","card");
+var g=el("div","g3");var ti=el("input");ti.placeholder="Title";ti.value=p.title||"";ti.oninput=function(){p.title=ti.value};
+var tg=el("input");tg.placeholder="Tag (e.g. Thailand)";tg.value=p.tag||"";tg.oninput=function(){p.tag=tg.value};
+var du=el("input");du.placeholder="Duration (e.g. 5 Days / 4 Nights)";du.value=p.duration||"";du.oninput=function(){p.duration=du.value};
+g.append(ti,tg,du);c.appendChild(g);
+var inc=el("textarea");inc.rows=2;inc.placeholder="Inclusions, one per line";inc.value=(p.inclusions||"").split("|").filter(Boolean).join("\n");inc.oninput=function(){p.inclusions=inc.value.split("\n").filter(Boolean).join("|")};c.appendChild(inc);
+var g2=el("div","g2");var pr=el("input");pr.placeholder="Price (e.g. ฿ 12,900)";pr.value=p.price||"";pr.oninput=function(){p.price=pr.value};
+var ac=el("label",null,null);ac.style.fontWeight="400";var cb=document.createElement("input");cb.type="checkbox";cb.checked=p.active!=0;cb.style.width="auto";cb.onchange=function(){p.active=cb.checked?1:0};ac.append(cb," Active (visible on site)");
+g2.append(pr,ac);c.appendChild(g2);
+var rm=el("button","b d","Remove");rm.type="button";rm.onclick=function(){PK.splice(idx,1);drawPkgs()};c.appendChild(rm);return c}
+var PK=[];
+function drawPkgs(){var L=$("pkl");L.innerHTML="";PK.forEach(function(p,i){L.appendChild(pkgCard(p,i))});if(!PK.length)L.appendChild(el("p","m","No packages yet. Click + Add package."))}
+$("pk_add").onclick=function(){PK.push({id:"",title:"",tag:"",duration:"",inclusions:"",price:"",active:1});drawPkgs();$("pkl").lastElementChild.scrollIntoView({behavior:"smooth",block:"center"})};
+$("pk_save").onclick=function(){api("savePackages",{rows:PK}).then(function(j){say(j.ok?"Packages saved.":j.error,!j.ok);if(j.ok)CT.packages=PK})};
+
+function offerCard(o,idx){var c=el("div","card"),g=el("div","g3");
+var ti=el("input");ti.placeholder="Title";ti.value=o.title||"";ti.oninput=function(){o.title=ti.value};
+var va=el("input");va.placeholder="Validity (e.g. Oct 1 - Nov 30)";va.value=o.validity||"";va.oninput=function(){o.validity=va.value};
+var pr=el("input");pr.placeholder="Price (e.g. ฿ 9,900)";pr.value=o.price||"";pr.oninput=function(){o.price=pr.value};
+g.append(ti,va,pr);c.appendChild(g);
+var ac=el("label",null,null);ac.style.fontWeight="400";var cb=document.createElement("input");cb.type="checkbox";cb.checked=o.active!=0;cb.style.width="auto";cb.onchange=function(){o.active=cb.checked?1:0};ac.append(cb," Active (visible on site)");c.appendChild(ac);
+var rm=el("button","b d","Remove");rm.type="button";rm.style.marginTop="8px";rm.onclick=function(){OF.splice(idx,1);drawOffers()};c.appendChild(rm);return c}
+var OF=[];
+function drawOffers(){var L=$("ofl");L.innerHTML="";OF.forEach(function(o,i){L.appendChild(offerCard(o,i))});if(!OF.length)L.appendChild(el("p","m","No offers yet. Click + Add offer."))}
+$("of_add").onclick=function(){OF.push({id:"",title:"",validity:"",price:"",active:1});drawOffers();$("ofl").lastElementChild.scrollIntoView({behavior:"smooth",block:"center"})};
+$("of_save").onclick=function(){api("saveOffers",{rows:OF}).then(function(j){say(j.ok?"Offers saved.":j.error,!j.ok);if(j.ok)CT.offers=OF})};
+
+function testiCard(t,idx){var c=el("div","card");
+var q=el("textarea");q.rows=2;q.placeholder="Testimonial quote";q.value=t.quote||"";q.oninput=function(){t.quote=q.value};c.appendChild(q);
+var g=el("div","g2");var n=el("input");n.placeholder="Customer name";n.value=t.name||"";n.oninput=function(){t.name=n.value};
+var ac=el("label",null,null);ac.style.fontWeight="400";var cb=document.createElement("input");cb.type="checkbox";cb.checked=t.active!=0;cb.style.width="auto";cb.onchange=function(){t.active=cb.checked?1:0};ac.append(cb," Active");
+g.append(n,ac);c.appendChild(g);
+var rm=el("button","b d","Remove");rm.type="button";rm.style.marginTop="8px";rm.onclick=function(){TE.splice(idx,1);drawTesti()};c.appendChild(rm);return c}
+var TE=[];
+function drawTesti(){var L=$("tel");L.innerHTML="";TE.forEach(function(t,i){L.appendChild(testiCard(t,i))});if(!TE.length)L.appendChild(el("p","m","No testimonials yet. Click + Add testimonial."))}
+$("te_add").onclick=function(){TE.push({id:"",quote:"",name:"",active:1});drawTesti();$("tel").lastElementChild.scrollIntoView({behavior:"smooth",block:"center"})};
+$("te_save").onclick=function(){api("saveTestimonials",{rows:TE}).then(function(j){say(j.ok?"Testimonials saved.":j.error,!j.ok);if(j.ok)CT.testimonials=TE})};
+
+/* ---------- users ---------- */
+function loadUsers(){api("users").then(function(j){if(!j.ok)return;var L=$("ul");L.innerHTML="";j.users.forEach(function(u){var c=el("div","card");c.appendChild(el("b","",u.name+" · "+u.role+(u.active?"":" (inactive)")));c.appendChild(el("div","m",u.email));
+var row=el("div","row");var r=el("button","b x","Reset password");r.onclick=function(){if(confirm("Reset password for "+u.email+"?"))api("resetUser",{email:u.email}).then(function(k){say(k.ok?"Temporary password for "+u.email+": "+k.tempPassword+" (shown once)":k.error,!k.ok)})};
+var a=el("button","b x",u.active?"Deactivate":"Activate");a.onclick=function(){api("setActive",{email:u.email,active:!u.active}).then(function(k){say(k.ok?"Updated.":k.error,!k.ok);loadUsers()})};
+row.append(r,a);c.appendChild(row);L.appendChild(c)})})}
+$("ua").onclick=function(){api("addUser",{name:$("un").value,email:$("ue").value,role:$("ur").value}).then(function(j){say(j.ok?"User created. Temporary password (shown once): "+j.tempPassword:j.error,!j.ok);if(j.ok){$("un").value=$("ue").value="";loadUsers()}})};
+
+(function(){try{var t=(sessionStorage.getItem("t")||"").split("|");if(t[0]&&API.indexOf("http")===0){tok=t[0];role=t[1];enter(t[2],false)}}catch(e){}})();
+</script></body></html>
