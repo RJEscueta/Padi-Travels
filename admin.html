@@ -103,6 +103,7 @@ table{border-collapse:collapse;width:100%;font-size:.85rem}td,th{border:1px soli
 <div class="g2"><div><label>WhatsApp number</label><input id="s_whatsapp"></div><div><label>LINE ID</label><input id="s_line"></div></div>
 <div class="g2"><div><label>Email</label><input id="s_email"></div><div><label>Business hours</label><input id="s_hours"></div></div>
 <label>Office address</label><input id="s_office">
+<label>About text (shown under the hero on the homepage)</label><textarea id="s_about_text" rows="3"></textarea>
 <button class="b g" id="s_save">Save settings</button></div>
 
 <div class="msg">Photos upload straight to Google Drive and appear on the site within about 5 minutes. Landscape, ~1600×900. Prices here are the "starting from" text shown on cards.</div>
@@ -131,7 +132,7 @@ table{border-collapse:collapse;width:100%;font-size:.85rem}td,th{border:1px soli
 
 <script>
 var API=(window.APP_CONFIG||{}).API_URL||"",tok="",role="",ST=[],QS=[];
-var SL=[["hero","Home hero banner"],["bangkok","Bangkok"],["phuket","Phuket"],["pattaya","Pattaya"],["krabi","Krabi"],["chiang-mai","Chiang Mai"],["ayutthaya","Ayutthaya"],["boracay","Boracay"],["palawan","Palawan"],["el-nido","El Nido"],["coron","Coron"],["cebu","Cebu"],["bohol","Bohol"],["siargao","Siargao"]];
+var SL=[["hero","Home hero banner"],["bangkok","Bangkok"],["phuket","Phuket"],["pattaya","Pattaya"],["krabi","Krabi"],["chiang-mai","Chiang Mai"],["ayutthaya","Ayutthaya"]];
 var PL=SL.slice(1); // destinations only, for prices
 function $(i){return document.getElementById(i)}
 if(API.indexOf("http")!==0){try{API=localStorage.getItem("api")||""}catch(e){}}
@@ -229,8 +230,8 @@ function loadContent(){api("adminLists").then(function(j){if(!j.ok)return say(j.
 PK=(CT.packages||[]).map(function(x){return Object.assign({},x)});drawPkgs();
 OF=(CT.offers||[]).map(function(x){return Object.assign({},x)});drawOffers();
 TE=(CT.testimonials||[]).map(function(x){return Object.assign({},x)});drawTesti()})}
-function fillSettings(s){["agency_name","phone","whatsapp","line","email","hours","office"].forEach(function(f){$("s_"+f).value=s[f]||""})}
-$("s_save").onclick=function(){var f={};["agency_name","phone","whatsapp","line","email","hours","office"].forEach(function(k){f[k]=$("s_"+k).value.trim()});api("saveSettings",{fields:f}).then(function(j){say(j.ok?"Settings saved.":j.error,!j.ok)})};
+function fillSettings(s){["agency_name","phone","whatsapp","line","email","hours","office","about_text"].forEach(function(f){$("s_"+f).value=s[f]||""})}
+$("s_save").onclick=function(){var f={};["agency_name","phone","whatsapp","line","email","hours","office","about_text"].forEach(function(k){f[k]=$("s_"+k).value.trim()});api("saveSettings",{fields:f}).then(function(j){say(j.ok?"Settings saved.":j.error,!j.ok)})};
 
 function pack(file,cb){var r=new FileReader();r.onload=function(){var i=new Image();i.onload=function(){var w=Math.min(1600,i.width),h=Math.round(i.height*w/i.width),c=document.createElement("canvas");c.width=w;c.height=h;c.getContext("2d").drawImage(i,0,0,w,h);var v=c.toDataURL("image/webp",.8);if(v.indexOf("image/webp")<0)v=c.toDataURL("image/jpeg",.8);cb(v)};i.src=r.result};r.readAsDataURL(file)}
 function drawImgs(){var IM=CT.images||{},PR=CT.prices||{};var L=$("il");L.innerHTML="";L.appendChild(el("h3","","Photos &amp; starting prices"));
@@ -243,16 +244,27 @@ if(s[0]==="hero"){pr.classList.add("hide")}else{var ps=el("button","b g","Save p
 r.append(f,x,pr);c.append(t,r);L.appendChild(c)})}
 
 function rowEditor(list,fields,builder){var L=document.createDocumentFragment();(list||[]).forEach(function(item,idx){L.appendChild(builder(item,idx))});return L}
+var TOUR_TYPES=["Sea Tour","Land Tour"],DURATION_TYPES=["Half-Day","One-Day","Multi-Day"],VEHICLES=["Speedboat","Long-tail Boat","Land Vehicle","Van"],TOUR_STYLES=["Join Tour","Private Tour"];
+function sel(opts,val,onch){var s=document.createElement("select");s.add(new Option("—",""));opts.forEach(function(o){s.add(new Option(o,o))});s.value=val||"";s.onchange=function(){onch(s.value)};return s}
 function pkgCard(p,idx){var c=el("div","card");
 var g=el("div","g3");var ti=el("input");ti.placeholder="Title";ti.value=p.title||"";ti.oninput=function(){p.title=ti.value};
-var tg=el("input");tg.placeholder="Tag (e.g. Thailand)";tg.value=p.tag||"";tg.oninput=function(){p.tag=tg.value};
-var du=el("input");du.placeholder="Duration (e.g. 5 Days / 4 Nights)";du.value=p.duration||"";du.oninput=function(){p.duration=du.value};
+var tg=el("input");tg.placeholder="Tag (e.g. Krabi)";tg.value=p.tag||"";tg.oninput=function(){p.tag=tg.value};
+var du=el("input");du.placeholder="Duration label (e.g. 5 Days / 4 Nights)";du.value=p.duration||"";du.oninput=function(){p.duration=du.value};
 g.append(ti,tg,du);c.appendChild(g);
 var inc=el("textarea");inc.rows=2;inc.placeholder="Inclusions, one per line";inc.value=(p.inclusions||"").split("|").filter(Boolean).join("\n");inc.oninput=function(){p.inclusions=inc.value.split("\n").filter(Boolean).join("|")};c.appendChild(inc);
-var g2=el("div","g2");var pr=el("input");pr.placeholder="Price (e.g. ฿ 12,900)";pr.value=p.price||"";pr.oninput=function(){p.price=pr.value};
+var g2=el("div","g3");var pr=el("input");pr.placeholder="Display price (e.g. ฿ 1,200/Pax)";pr.value=p.price||"";pr.oninput=function(){p.price=pr.value};
+var wp=el("input");wp.placeholder="Was price (optional, for a strikethrough discount)";wp.value=p.was_price||"";wp.oninput=function(){p.was_price=wp.value};
+var pn=el("input");pn.type="number";pn.min="0";pn.placeholder="Price in THB (for the filter slider)";pn.value=p.price_number||"";pn.oninput=function(){p.price_number=pn.value};
+g2.append(pr,wp,pn);c.appendChild(g2);
+var g4=el("div","g3");
+g4.append(sel(TOUR_TYPES,p.tour_type,function(v){p.tour_type=v}),sel(DURATION_TYPES,p.duration_type,function(v){p.duration_type=v}),sel(VEHICLES,p.vehicle,function(v){p.vehicle=v}));
+c.appendChild(g4);
+var g5=el("div","g2");g5.append(sel(TOUR_STYLES,p.style,function(v){p.style=v}),el("span"));c.appendChild(g5);
+var g6=el("div","row");
 var ac=el("label",null,null);ac.style.fontWeight="400";var cb=document.createElement("input");cb.type="checkbox";cb.checked=p.active!=0;cb.style.width="auto";cb.onchange=function(){p.active=cb.checked?1:0};ac.append(cb," Active (visible on site)");
-g2.append(pr,ac);c.appendChild(g2);
-var rm=el("button","b d","Remove");rm.type="button";rm.onclick=function(){PK.splice(idx,1);drawPkgs()};c.appendChild(rm);return c}
+var hc=el("label",null,null);hc.style.fontWeight="400";var hb=document.createElement("input");hb.type="checkbox";hb.checked=p.hot==1;hb.style.width="auto";hb.onchange=function(){p.hot=hb.checked?1:0};hc.append(hb," Mark HOT (badge on the card)");
+g6.append(ac,hc);c.appendChild(g6);
+var rm=el("button","b d","Remove");rm.type="button";rm.style.marginTop="8px";rm.onclick=function(){PK.splice(idx,1);drawPkgs()};c.appendChild(rm);return c}
 var PK=[];
 function drawPkgs(){var L=$("pkl");L.innerHTML="";PK.forEach(function(p,i){L.appendChild(pkgCard(p,i))});if(!PK.length)L.appendChild(el("p","m","No packages yet. Click + Add package."))}
 $("pk_add").onclick=function(){PK.push({id:"",title:"",tag:"",duration:"",inclusions:"",price:"",active:1});drawPkgs();$("pkl").lastElementChild.scrollIntoView({behavior:"smooth",block:"center"})};
